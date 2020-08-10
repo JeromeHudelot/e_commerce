@@ -1,0 +1,38 @@
+{% extends "base.html.twig" %}
+{% block title  %} Commande {{ commande.id }} {% endblock %}
+
+{% block body %}
+	{{ parent() }}
+	
+	<div id="content">
+	
+		<div class="client_firstname">{{ commande.client.firstname }}</div>
+		<div class="client_lasttname">{{ commande.client.lastname }}</div>
+		<div class="adress">{{ commande.client.adress }}</div>
+		<div class="city">{{ commande.client.city }}</div>
+		<div class="postal_code">{{ commande.client.postalcode }}</div>
+		<div class="phone">{{ commande.client.phone }}</div>
+		<div class="email">{{ commande.client.email }}</div>
+		<div class="price_total">{{ commande.price }} €</div>
+		<div class="weight">{{ commande.weight }} gramme</div>
+		<div class="nbElement">{{ commande.nbelement }} unité</div>
+		
+		{% for product in commande.commandeproducts %}
+		
+			<div class="product_name">{{ product.product.name }}</div>
+			<div class="price">{{ product.product.price }} €</div>
+			<div class="adress">{{ product.product.weight }} gramme</div>
+			<div class="city">{{ product.quantity }} unité</div>
+		
+		{% endfor %}
+	
+		{{ form_start(form) }}
+		
+			{{ form_widget(form) }}
+		
+			<button type="submit">Valider la commande</button>
+		
+		{{ form_end(form) }}
+	</div>
+
+{% endblock %}

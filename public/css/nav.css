@@ -1,0 +1,8 @@
+#cart-dropdown {
+list-style:none;
+margin-left:0;
+padding-left:0;
+}
+#empty-cart-msg {
+margin-bottom:15px;/* à adapter */
+}

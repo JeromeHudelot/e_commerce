@@ -1,0 +1,102 @@
+{% extends "base.html.twig" %}
+{% block title  %} {{ product.name }} {% endblock %}
+
+{% block body %}
+	{{ parent() }}
+	
+	<div id="content" class="container">
+		<div class="jumbotron" style="margin-top: 30px">
+			<div class="row">
+			
+				{% if product.imageName is defined and product.imageName is not null and product.imageName != ''%}
+					<img class="col-md-8 image" src="{{ vich_uploader_asset(product, 'imageFile') }}" alt="{{ product.name }}" style="width : 100%; height: auto">
+				{% endif %}
+				<h1 class="col-md-4 name">{{ product.name }}</h1>
+			
+			</div>
+			<div class="row">
+				<div class="col-md-4 stock">{{ product.stock }} unité en stock</div>
+				<div class="col-md-4 price">{{ product.price }} €</div>
+				<div class="col-md-4 weight">{{ product.weight }} gramme</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 description">{{ product.description }}</div>
+			</div>
+		</div>
+		<div class="ajoutPanier row">
+		
+			<label for="q">Quantité: </label>
+			<select id="qt" name="q" class="form-control col-md-4">
+				
+				{%for stock in 0..product.stock %}
+				
+					<option value={{ stock }}>{{ stock }}</option>
+				
+				{% else %}
+				
+					<p>Produit indisponible pour le moment</p>
+				
+				{% endfor %}
+			</select>
+			<button type="button" class="add-to-cart btn btn-primary" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-weight="{{ product.weight }}" data-url="{{ path('product_show', {slug : product.slug, id : product.id}) }}">Ajouter au panier</button>
+		
+		</div>
+	
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+{{ parent() }}
+
+<script type="application/javascript">
+
+		console.log('test11');
+	$('.add-to-cart').click(function() {
+
+		console.log('test12');
+		var $this = $(this);
+		var id = $this.attr('data-id');
+		var name = $this.attr('data-name');
+		var price = $this.attr('data-price');
+		var weight = $this.attr('data-weight');
+		var url = $this.attr('data-url');
+		var qt = parseInt($('#qt').val());
+		inCartItemsNum += qt;
+		console.log('test1');
+		$('#in-cart-items-num').html(inCartItemsNum);
+
+		var newArticle = true;
+
+		cartArticles.forEach(function(v) {
+			if (v.id == id) {
+				newArticle = false;
+				v.qt += qt;
+				$('#'+ id).html('<a href="'+ url +'">'+ name +'<br><small>Quantité : <span class="qt">'+ v.qt +'</span></small></a>');
+			}
+		});
+
+		console.log('test2');
+		if (newArticle) {
+		console.log('test3');
+			$('#cart-dropdown').prepend('<li id="'+ id +'"><a href="'+ url +'">'+ name +'<br><small>Quantité : <span class="qt">'+ qt +'</span></small></a></li>');
+
+			cartArticles.push({
+				id: id,
+				name: name,
+				price: price,
+				weight: weight,
+				qt: qt,
+				url: url
+			});
+		}
+
+		saveCart(inCartItemsNum, cartArticles);
+
+		cartEmptyToggle();
+	});
+
+</script>
+
+{% endblock %}

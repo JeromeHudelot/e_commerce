@@ -1,0 +1,42 @@
+{% extends "base.html.twig" %}
+
+{% block title  %} Pannel d'administration {% endblock %}
+
+
+{% block body %}
+	{{ parent() }}
+	
+		{% for message in app.flashes('success') %}
+		
+			{{ message }}
+		
+		{% endfor %}
+	
+		<table>
+			<thead>
+				<tr>
+					<th>Produit</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+	
+				{% for cat in cats %}
+				
+					<tr>
+						<th>
+							<a href="{{ path('admin.categorie.show', {id : cat.id}) }}">{{ cat.name }}</a>
+						</th>
+						<th>
+							<a href="{{ path('admin.categorie.edit', {id: cat.id}) }}">Editer</a>
+							<a href="{{ path('admin.categorie.delete', {id: cat.id}) }}" onclick="return confirm('Etes Vous vraiment sur ?')">Supprimer</a>
+						</th>
+					</tr>
+					
+				{% endfor %}
+				
+			</tbody>
+		</table>
+		<a href="{{ path('admin.categorie.new') }}">Nouvelle categorie</a>
+	
+{% endblock %}

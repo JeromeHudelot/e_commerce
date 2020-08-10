@@ -1,0 +1,53 @@
+{% extends "base.html.twig" %}
+{% block title  %} Admin Produit {% endblock %}
+
+{% block body %}
+	{{ parent() }}
+	
+	<div id="content">
+	
+		{% for message in app.flashes('success') %}
+		
+			{{ message }}
+		
+		{% endfor %}
+	
+		<table>
+		
+			<thead>
+				
+				<tr>
+				
+					<th>Id Commande</th>
+					<th>Prix total</th>
+					<th>Poid total</th>
+					<th>Nombre d'élément</th>
+					<th>Client</th>
+					<th>Créée le</th>
+				
+				</tr>
+			
+			</thead>
+			<tbody>
+				
+				{% for commande in commandes %}
+				
+					<tr>
+					
+						<td><a href="{{path('admin.commande.show', {id : commande.id})}}">{{ commande.id }}</a></td>
+						<td>{{ commande.price }} €</td>
+						<td>{{ commande.weight }} gramme</td>
+						<td>{{ commande.nbElement }} unité</td>
+						<td>{{ commande.client.firstname }} {{ commande.client.lastname }}</td>
+						<td>{{ commande.createdat|date('d/m/Y') }} unité</td>
+					</tr>
+			
+				{% endfor %}
+			
+			</tbody>
+		
+		</table>
+	{{ knp_pagination_render(commandes) }}
+	</div>
+
+{% endblock %}

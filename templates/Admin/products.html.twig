@@ -1,0 +1,57 @@
+{% extends "base.html.twig" %}
+{% block title  %} Admin Produit {% endblock %}
+
+{% block body %}
+	{{ parent() }}
+	
+	<div id="container">
+	
+		{% for message in app.flashes('success') %}
+		
+			{{ message }}
+		
+		{% endfor %}
+	
+		<table>
+		
+			<thead>
+				
+				<tr>
+				
+					<th>Nom</th>
+					<th>Stock</th>
+					<th>Prix</th>
+					<th>Poid</th>
+					<th>Description</th>
+					<th>Action</th>
+				
+				</tr>
+			
+			</thead>
+			<tbody>
+				
+				{% for product in products %}
+				
+					<tr>
+					
+						<td><a href="{{path('product_show', {slug : product.slug, id : product.id})}}">{{ product.name }}</a></td>
+						<td>{{ product.stock }} unité</td>
+						<td>{{ product.price }} €</td>
+						<td>{{ product.weight }} gramme</td>
+						<td>{{ product.description|nl2br }}</td>
+						<td> 
+							<a href="{{ path('admin.product.edit', {id : product.id })}}">Editer</a>
+							<a href="{{path('admin.product.delete', {id : product.id})}}" onclick="return confirm('Etes Vous vraiment sur ?')">Supprimer</a>
+						</td>
+					</tr>
+			
+				{% endfor %}
+			
+			</tbody>
+		
+		</table>
+		<a href="{{ path('admin.product.new') }}">Nouveau Produit</a>
+	{{ knp_pagination_render(products) }}
+	</div>
+
+{% endblock %}

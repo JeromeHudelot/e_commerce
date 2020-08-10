@@ -1,0 +1,248 @@
+{% extends "base.html.twig" %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+{% endblock %}
+{% block title  %} Panier {% endblock %}
+
+
+{% block body %}
+	{{ parent() }}
+	
+	{% for message in app.flashes('success') %}
+	
+		{{ message }}
+	
+	{% endfor %}
+	
+	<table  class="table table-striped">
+		<thead>
+			<tr><th>Article</th><th>Prix</th><th>Quantité</th></tr>
+		</thead>
+		<tbody id="cart-tablebody"></tbody>
+	</table>
+
+	<p>Sous total : <span class="subtotal"></span>€</p>
+
+	<button id="confirm-command" class="btn btn-primary">Passer la commande</button>
+	
+	<a href="#ex1" rel="modal:open" hidden class="openModal"></a>
+	
+	<div id="ex1" class="modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-header">
+				<h5 class="modal-title">Vos coordonnées</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p>Votre commande à bien été enregistré. Veuillez nous communiquer vos coordonnées</p>
+				{{ form_start(form) }}
+					<div class="form-group">
+						{{ form_label(form.firstName) }}
+						<div cladd="form-control">
+							{{ form_widget(form.firstName) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.lastName) }}
+						<div cladd="form-control">
+							{{ form_widget(form.lastName) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.adress) }}
+						<div cladd="form-control">
+							{{ form_widget(form.adress) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.city) }}
+						<div cladd="form-control">
+							{{ form_widget(form.city) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.postal_code) }}
+						<div cladd="form-control">
+							{{ form_widget(form.postal_code) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.phone) }}
+						<div cladd="form-control">
+							{{ form_widget(form.phone) }}
+						</div>
+					</div>
+					<div class="form-group">
+						{{ form_label(form.email) }}
+						<div cladd="form-control">
+							{{ form_widget(form.email) }}
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary">Validé</button>
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+	
+{% endblock %}
+
+{% block javascripts %}
+
+{{ parent() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+<script type="application/javascript">
+	if (window.location.pathname == "{{path('panier')}}") {
+		var items = '';
+		var subTotal = 0;
+		var total;
+		var weight = 0;
+		
+		cartArticles.forEach(function(v) {
+			
+			var itemPrice = v.price.replace(',', '.') * 1000;
+			
+			items += '<tr data-id="'+ v.id +'">\
+				 <td><a href="'+ v.url +'">'+ v.name +'</a></td>\
+				 <td>'+ v.price +'€</td>\
+				 <td><span class="qt">'+ v.qt +'</span> <span class="qt-minus">–</span> <span class="qt-plus">+</span> \
+				 <a class="delete-item">Supprimer</a></td></tr>';
+			subTotal += itemPrice * v.qt;
+			weight += v.weight * v.qt;
+		});
+
+		
+		subTotal = subTotal / 1000;
+
+		
+		$('#cart-tablebody').empty().html(items);
+		$('.subtotal').html(subTotal.toFixed(2).replace('.', ','));
+
+		
+		$('.qt-plus').on('click', function() {
+			var $this = $(this);
+
+			
+			var qt = parseInt($this.prevAll('.qt').html());
+			var id = $this.parent().parent().attr('data-id');
+			var artWeight = parseInt($this.parent().parent().attr('data-weight'));
+
+			
+			inCartItemsNum += 1;
+			weight += artWeight;
+			$this.prevAll('.qt').html(qt + 1);
+			$('#in-cart-items-num').html(inCartItemsNum);
+			$('#'+ id + ' .qt').html(qt + 1);
+
+			
+			cartArticles.forEach(function(v) {
+				
+				if (v.id == id) {
+					v.qt += 1;
+					subTotal = ((subTotal * 1000) + (parseFloat(v.price.replace(',', '.')) * 1000)) / 1000;
+				}
+			});
+
+			
+			$('.subtotal').html(subTotal.toFixed(2).replace('.', ','));
+			saveCart(inCartItemsNum, cartArticles);
+		});
+
+		
+		$('.qt-minus').click(function() {
+			var $this = $(this);
+			var qt = parseInt($this.prevAll('.qt').html());
+			var id = $this.parent().parent().attr('data-id');
+			var artWeight = parseInt($this.parent().parent().attr('data-weight'));
+
+			if (qt > 1) {
+				
+				inCartItemsNum -= 1;
+				weight -= artWeight;
+				$this.prevAll('.qt').html(qt - 1);
+				$('#in-cart-items-num').html(inCartItemsNum);
+				$('#'+ id + ' .qt').html(qt - 1);
+
+				cartArticles.forEach(function(v) {
+					
+					if (v.id == id) {
+						v.qt -= 1;
+						subTotal = ((subTotal * 1000) - (parseFloat(v.price.replace(',', '.')) * 1000)) / 1000;
+					}
+				});
+
+				$('.subtotal').html(subTotal.toFixed(2).replace('.', ','));
+				saveCart(inCartItemsNum, cartArticles);
+			}
+		});
+
+		
+		$('.delete-item').click(function() {
+			var $this = $(this);
+			var qt = parseInt($this.prevAll('.qt').html());
+			var id = $this.parent().parent().attr('data-id');
+			var artWeight = parseInt($this.parent().parent().attr('data-weight'));
+			var arrayId = 0;
+			var price;
+
+			
+			inCartItemsNum -= qt;
+			$('#in-cart-items-num').html(inCartItemsNum);
+
+			
+			$this.parent().parent().hide(600);
+			$('#'+ id).remove();
+
+			cartArticles.forEach(function(v) {
+				
+				if (v.id == id) {
+				
+					var itemPrice = v.price.replace(',', '.') * 1000;
+					subTotal -= (itemPrice * qt) / 1000;
+					weight -= artWeight * qt;
+					cartArticles.splice(arrayId, 1);
+
+					return false;
+				}
+
+				arrayId++;
+			});
+
+			$('.subtotal').html(subTotal.toFixed(2).replace('.', ','));
+			saveCart(inCartItemsNum, cartArticles);
+			cartEmptyToggle();
+		});
+		
+		$('#confirm-command').click(function(){
+		
+			var posting = $.post( "{{ path('information') }}", {'choices[]': JSON.stringify(cartArticles)});
+			
+			posting.done(function(data){
+			
+				if(data.data == 1){
+				
+					$('.openModal').click();
+				
+				}
+				else if(data.data == 2){
+				
+					alert("Il y a eu une erreur");
+				
+				}
+				else if(data.data == 3){
+				
+					alert("Stock insuffisants");
+				
+				}
+			
+			});
+		
+		});
+	}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html.twig" %}
+
+{% block title  %} Pannel d'administration {% endblock %}
+
+
+{% block body %}
+	{{ parent() }}
+	
+		{% for message in app.flashes('success') %}
+		
+			{{ message }}
+		
+		{% endfor %}
+	
+		{{ form_start(form) }}
+		
+			{{ form_widget(form) }}
+			
+			<button type="submit">Editer</button>
+		
+		{{ form_end(form) }}
+	
+{% endblock %}
