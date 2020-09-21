@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\ClientRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use AppBundle\Validator\Constraints as AppAssert;
+use App\Validator\Constraints as AppAssert;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
@@ -21,7 +21,7 @@ class Client
 
     /**
      * @ORM\Column(type="string", length=255)
-	 * @Assert\NotBlanks
+	 * @Assert\NotBlank
 	 * @Assert\Regex(
      *     pattern="/\d/",
      *     match=false,

@@ -4,7 +4,7 @@
 {% block body %}
 	{{ parent() }}
 	
-	<div id="content">
+	<div class="container">
 	
 		{% for message in app.flashes('success') %}
 		
@@ -12,17 +12,17 @@
 		
 		{% endfor %}
 	
-		<table>
+		<table class="table table-striped">
 		
 			<thead>
 				
 				<tr>
 				
 					<th>Id Commande</th>
+					<th>Client</th>
 					<th>Prix total</th>
 					<th>Poid total</th>
 					<th>Nombre d'élément</th>
-					<th>Client</th>
 					<th>Créée le</th>
 				
 				</tr>
@@ -35,11 +35,11 @@
 					<tr>
 					
 						<td><a href="{{path('admin.commande.show', {id : commande.id})}}">{{ commande.id }}</a></td>
-						<td>{{ commande.price }} €</td>
-						<td>{{ commande.weight }} gramme</td>
-						<td>{{ commande.nbElement }} unité</td>
 						<td>{{ commande.client.firstname }} {{ commande.client.lastname }}</td>
-						<td>{{ commande.createdat|date('d/m/Y') }} unité</td>
+						<td>{{ commande.price }} €</td>
+						<td>{{ commande.weight/1000 }} kg</td>
+						<td>{{ commande.nbElement }} unité</td>
+						<td>{{ commande.createdat|date('d/m/Y') }}</td>
 					</tr>
 			
 				{% endfor %}

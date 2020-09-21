@@ -6,37 +6,38 @@
 {% block body %}
 	{{ parent() }}
 	
-		{% for message in app.flashes('success') %}
+		<div class="container">
+			{% for message in app.flashes('success') %}
+			
+				{{ message }}
+			
+			{% endfor %}
 		
-			{{ message }}
-		
-		{% endfor %}
-	
-		<table>
-			<thead>
-				<tr>
-					<th>Produit</th>
-					<th>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-	
-				{% for cat in cats %}
-				
+			<table class="table table-striped">
+				<thead>
 					<tr>
-						<th>
-							<a href="{{ path('admin.categorie.show', {id : cat.id}) }}">{{ cat.name }}</a>
-						</th>
-						<th>
-							<a href="{{ path('admin.categorie.edit', {id: cat.id}) }}">Editer</a>
-							<a href="{{ path('admin.categorie.delete', {id: cat.id}) }}" onclick="return confirm('Etes Vous vraiment sur ?')">Supprimer</a>
-						</th>
+						<th>Produit</th>
+						<th>Action</th>
 					</tr>
+				</thead>
+				<tbody>
+		
+					{% for cat in cats %}
 					
-				{% endfor %}
-				
-			</tbody>
-		</table>
-		<a href="{{ path('admin.categorie.new') }}">Nouvelle categorie</a>
-	
+						<tr>
+							<th>
+								<a href="{{ path('admin.categorie.show', {id : cat.id}) }}">{{ cat.name }}</a>
+							</th>
+							<th>
+								<a href="{{ path('admin.categorie.edit', {id: cat.id}) }}" class="btn btn-primary">Editer</a>
+								<a href="{{ path('admin.categorie.delete', {id: cat.id}) }}" class="btn btn-danger" onclick="return confirm('Etes Vous vraiment sur ?')">Supprimer</a>
+							</th>
+						</tr>
+						
+					{% endfor %}
+					
+				</tbody>
+			</table>
+			<a href="{{ path('admin.categorie.new') }}">Nouvelle categorie</a>
+		</div>
 {% endblock %}

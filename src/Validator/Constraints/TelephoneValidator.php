@@ -32,7 +32,6 @@ class TelephoneValidator extends ConstraintValidator
 			;
 		}
 	}
-  }
 	
 	
 }

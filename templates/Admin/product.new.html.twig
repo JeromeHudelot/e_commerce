@@ -13,10 +13,63 @@
 		{% endfor %}
 	
 		{{ form_start(form) }}
-		
-			{{ form_widget(form) }}
+		<div class="form-group">
+					{{ form_label(form.name) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.name) }}
+					</div>
+				</div>
 			
-			<button type="submit">Editer</button>
+				<div class="form-group">
+					{{ form_label(form.price) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.price) }}
+					</div>
+				</div>
+			
+				<div class="form-group">
+					{{ form_label(form.stock) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.stock) }}
+					</div>
+				</div>
+			
+				<div class="form-group">
+					{{ form_label(form.description) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.description) }}
+					</div>
+				</div>
+			
+				<div class="form-group">
+					{{ form_label(form.weight) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.weight) }}
+					</div>
+				</div>
+			
+				<div class="form-group">
+					{{ form_label(form.imageFile) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.imageFile) }}
+					</div>
+				</div>
+			
+				<div class="form-group">
+					{{ form_label(form.categorie) }}
+					
+					<div class="form-control">
+						{{ form_widget(form.categorie) }}
+					</div>
+				</div>
+			
+			<button type="submit">Créer</button>
 		
 		{{ form_end(form) }}
 	

@@ -11,6 +11,9 @@
 	use App\Form\CategorieType;
 	use App\Form\CommandeType;
 	use App\Form\ProductType;
+	use App\Repository\CommandeRepository;
+	use App\Repository\CategorieRepository;
+	use App\Repository\ProductRepository;
 	use App\Entity\Categorie;
 	use App\Entity\Product;
 	use App\Entity\Commande;
@@ -18,20 +21,31 @@
 	
 	class AdminController extends AbstractController
 	{
+		
+		private $commandeRepository;
+		private $categorieRepository;
+		private $productRepository;
+		
+		public function __construct(CommandeRepository $commande, CategorieRepository $cat, ProductRepository $product, EntityManagerInterface $em){
+			
+			$this->commandeRepository = $commande;
+			$this->categorieRepository = $cat;
+			$this->productRepository = $product;
+			$this->em = $em;
+			
+		}
 		/**
 		 * @Route("/admin/", name="admin.index", methods={"GET"})
 		 * @return Response
 		 */
 		public function indexAction(PaginatorInterface $paginator, Request $request){
 			
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
-			
-			$products = $paginator->paginate(
-					$this->getDoctrine()->getRepository(Product::class)->findAllPaginate(),
+			$commandes = $paginator->paginate(
+					$this->commandeRepository->findAllPaginate(),
 					$request->query->getInt('page', 1),
 					15);
 					
-			return $this->render('Admin/index.html.twig', ['cats' => $cats, 'current' => 'index', 'products' => $products]);
+			return $this->render('Admin/index.html.twig', ['current' => 'index', 'commandes' => $commandes]);
 			
 		}
 		
@@ -41,7 +55,7 @@
 		 */
 		public function categoriesAction(PaginatorInterface $paginator, Request $request){
 			
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+			$cats = $this->categorieRepository->findAll();
 					
 			return $this->render('Admin/categories.html.twig', ['cats' => $cats, 'current' => 'admin.categories']);
 			
@@ -53,11 +67,11 @@
 		 */
 		public function categoriesShowAction(PaginatorInterface $paginator, Request $request, $id){
 			
-			$cat = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+			$cat = $this->categorieRepository->find($id);
 			
 			
 			$products = $paginator->paginate(
-					$this->getDoctrine()->getRepository(Product::class)->findByProductIdPaginate($id),
+					$this->productRepository->findByProductIdPaginate($id),
 					$request->query->getInt('page', 1),
 					30);			
 					
@@ -80,9 +94,9 @@
 			if($form->isSubmitted() && $form->isValid())
 			{
 				
-				$this->getDoctrine->getManager()->persist($cat);
-				$this->getDoctrine()->getManager()->flush();
-			$this->addFlash('success', 'Catégorie créée avec succè');
+				$this->em->persist($cat);
+				$this->em->flush();
+				$this->addFlash('success', 'Catégorie créée avec succè');
 				
 			}
 					
@@ -96,7 +110,7 @@
 		 */
 		public function categorieEditAction(Request $request, $id){
 			
-			$cat = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
+			$cat = $this->categorieRepository->find($id);
 			
 			$form = $this->createForm(CategorieType::class, $cat);
 			
@@ -105,7 +119,7 @@
 			if($form->isSubmitted() && $form->isValid())
 			{
 				
-				$this->getDoctrine()->getManager()->flush();
+				$this->em->flush();
 				$this->addFlash('success', 'Catégorie édité avec succè');
 				
 			}
@@ -120,10 +134,10 @@
 		 */
 		public function categorieDeleteAction(Request $request, $id){
 			
-			$cat = $this->getDoctrine()->getRepository(Categorie::class)->find($id);
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
-			$this->getDoctrine->getManager()->remove($cat);
-			$this->getDoctrine()->getManager()->flush();
+			$cat = $this->categorieRepository->find($id);
+			$this->em->remove($cat);
+			$this->em->flush();
+			$cats = $this->categorieRepository->findAll();
 			$this->addFlash('success', 'Catégorie supprimé avec succè');
 			return $this->render('Admin/categories.html.twig', ['cats' => $cats, 'current' => 'admin.categories']);
 			
@@ -136,7 +150,7 @@
 		public function productAction(PaginatorInterface $paginator, Request $request){
 			
 			$products = $paginator->paginate(
-					$this->getDoctrine()->getRepository(Product::class)->findAllPaginate(),
+					$this->productRepository->findAllPaginate(),
 					$request->query->getInt('page', 1),
 					30);
 					
@@ -158,8 +172,8 @@
 			
 			if($form->isSubmitted() && $form->isValid())
 			{
-				$this->getDoctrine()->getManager()->persist($product);
-				$this->getDoctrine()->getManager()->flush();
+				$this->em->persist($product);
+				$this->em->flush();
 				$this->addFlash('success', 'Produit créer avec succè');
 				
 			}
@@ -174,7 +188,7 @@
 		 */
 		public function productEditAction(Request $request, $id){
 			
-			$product = $this->getDoctrine()->getRepository(Product::class)->find($id);
+			$product = $this->productRepository->find($id);
 			
 			$form = $this->createForm(ProductType::class, $product);
 			
@@ -183,7 +197,7 @@
 			if($form->isSubmitted() && $form->isValid())
 			{
 				
-				$this->getDoctrine()->getManager()->flush();
+				$this->em->flush();
 				$this->addFlash('success', 'Produit édité avec succè');
 				
 			}
@@ -198,11 +212,11 @@
 		 */
 		public function productDeleteAction(PaginatorInterface $paginator, Request $request, $id){
 			
-			$product = $this->getDoctrine()->getRepository(Product::class)->find($id);
-			$products = $this->getDoctrine()->getRepository(Product::class)->findAll();
-			$this->getDoctrine()->getManager()->remove($product);
-			$this->getDoctrine()->getManager()->flush();
-				$this->addFlash('success', 'Produit supprimé avec succè');
+			$product = $this->productRepository->find($id);
+			$this->em->remove($product);
+			$this->em->flush();
+			$products = $this->productRepository->findAll();
+			$this->addFlash('success', 'Produit supprimé avec succè');
 			return $this->render('Admin/product.html.twig', ['products' => $products, 'current' => 'admin.products']);
 			
 		}
@@ -214,7 +228,7 @@
 		public function commandesAction(PaginatorInterface $paginator, Request $request){
 			
 			$commandes = $paginator->paginate(
-					$this->getDoctrine()->getRepository(Commande::class)->findAllPaginate(),
+					$this->commandeRepository->findAllPaginate(),
 					$request->query->getInt('page', 1),
 					30);
 					
@@ -228,7 +242,7 @@
 		 */
 		public function commandeShowAction(Request $request, $id){
 			
-			$commande = $this->getDoctrine()->getRepository(Commande::class)->find($id);
+			$commande = $this->commandeRepository->find($id);
 			
 			$form = $this->createForm(CommandeType::class, $commande);
 			
@@ -237,7 +251,7 @@
 			if($form->isSubmitted() && $form->isValid())
 			{
 				
-				$this->getDoctrine()->getManager()->flush();
+				$this->em->flush();
 				$this->addFlash('success', 'Commande validé avec succès');
 				
 			}

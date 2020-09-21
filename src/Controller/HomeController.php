@@ -12,6 +12,8 @@
 	use Symfony\Component\HttpFoundation\Request;
 	use Symfony\Component\Routing\Annotation\Route;
 	use Symfony\Component\HttpFoundation\Cookie;
+	use App\Repository\CategorieRepository;
+	use App\Repository\ProductRepository;
 	use App\Form\ClientType;
 	use App\Entity\Categorie;
 	use App\Entity\Product;
@@ -24,6 +26,18 @@
 	class HomeController extends AbstractController
 	{
 		
+		private $categorieRepository;
+		private $productRepository;
+		private $em;
+		
+		public function __construct(CategorieRepository $cat, ProductRepository $product, EntityManagerInterface $em){
+			
+			$this->categorieRepository = $cat;
+			$this->productRepository = $product;
+			$this->em = $em;
+			
+		}
+		
 		/**
 		 * @Route("/", name="home")
 		 * @return Response
@@ -31,7 +45,7 @@
 		public function indexAction(Request $request) : Response
 		{
 			
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+			$cats = $this->categorieRepository->findAll();
 			
 			return $this->render('home.html.twig', ['cats' => $cats, 'current' => 'home']);
 			
@@ -44,7 +58,7 @@
 		public function panierAction(Request $request) : Response
 		{
 			
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+			$cats = $this->categorieRepository->findAll();
 			
 			$client = new Client();
 			
@@ -63,8 +77,8 @@
 				$session = new Session();
 				$commande = $session->get('commande');
 				$client->setCommande($commande);
-				$this->getDoctrine()->getManager()->merge($client);
-				$this->getDoctrine()->getManager()->flush();
+				$this->em->merge($client);
+				$this->em->flush();
 				
 				$response->setContent($this->renderView('paiement.html.twig', ['cats' => $cats, 'current' => 'panier']));
 				
@@ -81,14 +95,14 @@
 		public function informationAction(Request $request) : Response
 		{
 			
-			$cats = $this->getDoctrine()->getRepository(Categorie::class)->findAll();
+			$cats = $this->categorieRepository->findAll();
 			
 			$commande_json  = json_decode(stripslashes($request->request->get('choices')[0]));
 			$commande = new Commande();
 			
 			foreach($commande_json as $key => $val){
 				
-				$product = $this->getDoctrine()->getRepository(Product::class)->find($val->id);
+				$product = $this->productRepository->find($val->id);
 				
 				if($product->getPrice() == $val->price && $product->getWeight() == $val->weight){
 					
@@ -101,13 +115,14 @@
 						$commande->setWeight($commande->getWeight() + $val->weight * $val->qt);
 						$commande->setNbElement($commande->getNbElement() + $val->qt);
 					
-						$this->getDoctrine()->getManager()->persist($commandeProduct);
+						$this->em->persist($commandeProduct);
 					}
 					else{
 						
 						$response = new Response();
 						$response->setContent(json_encode([
 							'data' => 3,
+							'product' => $product->getName(),
 						]));
 						$response->headers->set('Content-Type', 'application/json');
 			
@@ -116,8 +131,8 @@
 					}
 					$session = new Session();
 					$session->set('commande', $commande);
-					$this->getDoctrine()->getManager()->persist($commande);
-					$this->getDoctrine()->getManager()->flush();
+					$this->em->persist($commande);
+					$this->em->flush();
 				}
 				else{
 						

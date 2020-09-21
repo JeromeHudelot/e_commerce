@@ -14,7 +14,13 @@
 	
 		{{ form_start(form) }}
 		
-			{{ form_widget(form) }}
+			<div class="form-group">
+				{{ form_label(form.name) }}
+				
+				<div class="form-control">
+					{{ form_widget(form.name) }}
+				</div>
+			</div>
 			
 			<button type="submit">Editer</button>
 		{{ form_end(form) }}

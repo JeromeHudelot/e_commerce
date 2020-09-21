@@ -25,7 +25,7 @@
 			
 			$qb = $this->createQueryBuilder('c')
 						->select('c')
-						->where('c.status = false')
+						->where('c.status = true')
 						->orderBy('c.created_at', 'ASC')
 						->getQuery();
 			

@@ -6,6 +6,41 @@
 {% block body %}
 	{{ parent() }}
 	
+	<div class="container">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Client</th>
+					<th>Montant</th>
+					<th>Poid</th>
+					<th>Nb Element</th>
+					<th>Créée le</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+			
+					{% for commande in commandes %}
+					
+						<tr>
+						
+							<td><a href="{{ path(admin.commande.show, {id : commande.id}) }}">{{commande.id}}</a></td>
+							<td>{{ commande.client.firstname }} {{commande.client.lastname }}</td>
+							<td>{{ commande.price }} €</td>
+							<td>{{ commande.weight/1000 }} kg</td>
+							<td>{{ commande.nbElement }} kg</td>
+							<td>{{ commande.createdat|date('d/m/Y') }}</td>
+						
+						</tr>
+					
+					
+					{% endfor %}
+			
+			</tbody>
+			
+		</table>
 	
-	
+		{{ knp_pagination_render(commandes) }}
+	</div>
 {% endblock %}
